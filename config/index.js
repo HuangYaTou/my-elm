@@ -2,15 +2,34 @@
 // Template version: 1.3.1
 // see http://vuejs-templates.github.io/webpack for documentation.
 
-const path = require('path')
+const path = require('path');
+
+const proxyUrl = 'https://elm.cangdu.org';
 
 module.exports = {
   dev: {
-
+    env: require('./dev.env'),
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      '/v1': {
+        target: proxyUrl,
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/v1': '/v1'
+        }
+      },
+      '/v2': {
+        target: proxyUrl,
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/v2': '/v2'
+        }
+      }
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
@@ -20,7 +39,7 @@ module.exports = {
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */
@@ -33,7 +52,7 @@ module.exports = {
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
     cacheBusting: true,
 
-    cssSourceMap: true
+    cssSourceMap: false
   },
 
   build: {
