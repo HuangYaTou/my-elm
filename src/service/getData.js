@@ -115,3 +115,22 @@ export const accountLogin = (username, password, captcha_code) => fetch('/v2/log
     password,
     captcha_code
 }, 'POST');
+
+//修改密码
+export const changePassword = (username, oldpassword, newpassword, confirmpassword, captcha_code) => fetch('/v2/changepassword', {
+    username,
+    oldpassword,
+    newpassword,
+    confirmpassword,
+    captcha_code
+}, 'POST');
+
+//获取当前所在城市
+export const currentCity = (number) => fetch('/v1/cities/' + number);
+
+//获取搜索地址
+export const searchPlace = (cityid, value) => fetch('/v1/pois', {
+    type: 'search',
+    city_id: cityid,
+    keyword: value
+});

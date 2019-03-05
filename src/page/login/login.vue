@@ -12,8 +12,34 @@
             </section>
         </form>
         <form class="loginForm" v-else>
-
+            <section class="input_container">
+                <input type="text" placeholder="账号" v-model.lazy="userAccount">
+            </section>
+            <section class="input_container">
+                <input type="password" placeholder="密码" v-if="!showPassword" v-model="password">
+                <input type="text" placeholder="密码" v-else v-model="password">
+                <div class="button_switch" :class="{change_to_text: showPassword}">
+                    <div class="circle_button" :class="{trans_to_right: showPassword}" @click="changePasswordType"></div>
+                    <span>abc</span>
+                    <span>...</span>
+                </div>
+            </section>
+            <section class="input_container captcha_code_container">
+                <input type="text" placeholder="验证码" maxlength="4" v-model="codeNumber">
+                <div class="img_change_img">
+                    <img v-show="captchaCodeImg" :src="captchaCodeImg">
+                    <div class="change_img" @click="getCaptchaCode">
+                        <p>看不清</p>
+                        <p>换一张</p>
+                    </div>
+                </div>
+            </section>
         </form>
+        <p class="login_tips">温馨提示：未注册过的账号，登录时将自动注册</p>
+        <p class="login_tips">注册过的用户可凭账号密码登录</p>
+        <div class="login_container" @click="mobileLogin">登录</div>
+        <router-link to="/forget" class="to_forget" v-if="!loginWay">重置密码？</router-link>
+        <alert-tip v-if="showAlert" :showHide="showAlert" :alertText="alertText" @closeTip="closeTip"></alert-tip>
     </div>
 </template>
 
@@ -63,7 +89,7 @@ export default {
             this.loginWay = !this.loginWay;
         },
         //是否显示密码
-        changeShowPassword() {
+        changePasswordType() {
             this.showPassword = !this.showPassword;
         },
         //获取验证码[线上环境使用固定的图片，生产环境使用真实的验证码]
