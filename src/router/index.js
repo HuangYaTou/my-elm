@@ -6,6 +6,7 @@ const home = r => require.ensure([], () => r(require('../page/home/home')), 'hom
 const city = r => require.ensure([], () => r(require('../page/city/city')), 'city');
 const login = r => require.ensure([], () => r(require('../page/login/login')), 'login');
 const forget = r => require.ensure([], () => r(require('../page/forget/forget')), 'forget');
+const msite = r=>require.ensure([],()=>r(require('../page/msite/msite')),'msite');
 
 
 
@@ -31,7 +32,23 @@ export default new Router({
       }, {
         path: '/forget',
         component: forget
+      }, {
+        path: '/msite',
+        component: msite,
+        meta: {keepAlive: true}
       }]
     }
-  ]
+  ],
+  mode: 'hash',
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    else {
+      if (from.meta.keepAlive) {
+        from.meta.savedPosition = document.body.scrollTop;
+      }
+      return { x: 0, y: to.meta.savedPosition || 0 };
+    }
+  }
 })

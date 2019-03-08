@@ -28,6 +28,22 @@ module.exports = {
         pathRewrite: {
           '^/v2': '/v2'
         }
+      },
+      '/shopping': {
+        target: proxyUrl,
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/shopping': '/shopping'
+        },
+      },
+      '/img': {
+        target: proxyUrl,
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/img': '/img'
+        },
       }
     },
 

@@ -80,6 +80,13 @@ export const foodDelivery = (latitude, longitude) => fetch('/shopping/v1/restaur
     kw: ''
 });
 
+//获取food页面的商家属性活动列表
+export const foodActivity = (latitude, longitude) => fetch('/shopping/v1/restaurants/activity_attributes', {
+    latitude,
+    longitude,
+    kw: ''
+});
+
 //获取用户信息
 export const getUser = () => fetch('/v1/user', { user_id: getStore('user_id') });
 

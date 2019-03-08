@@ -20,14 +20,56 @@
 
 	    	</defs>
     	</svg>
-        <section class="guide_item"></section>
+        <section class="guide_item" @click="gotoAddress({path:'/msite', query:{geohash}})">
+            <svg class="icon_style">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="$route.path.indexOf('msite')!==-1?'#msiteActive':'#msite'"></use>
+            </svg>
+            <span>外卖</span>
+        </section>
+        <section class="guide_item" @click="gotoAddress({path:`/search/${geohash}`})">
+            <svg class="icon_style">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="$route.path.indexOf('search')!==-1?'#findActive':'#find'"></use>
+            </svg>
+            <span>搜索</span>
+        </section>
+        <section class="guide_item" @click="gotoAddress('/order')">
+            <svg class="icon_style">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="$route.path.indexOf('order')!==-1?'#orderActive':'#order'"></use>
+            </svg>
+            <span>订单</span>
+        </section>
+        <section class="guide_item" @click="gotoAddress('/profile')">
+            <svg class="icon_style">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="$route.path.indexOf('profile')!==-1?'#profileActive':'#profile'"></use>
+            </svg>
+            <span>我的</span>
+        </section>
     </section>
 </template>
 
+<script>
+import {mapState} from 'vuex'
+export default {
+    data() {
+        return {
+
+        }
+    },
+    computed: {
+        ...mapState([
+            'geohash'
+        ])
+    },
+    methods: {
+        gotoAddress(path) {
+            this.$router.push(path);
+        }
+    }
+}
+</script>
 
 <style lang="scss" scoped>
     @import '../../style/mixin';
-
     #foot_guide{
         background-color: #fff;
         position: fixed;

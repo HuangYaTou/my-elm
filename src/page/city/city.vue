@@ -91,6 +91,7 @@ export default {
                 this.placeHistory.push(choosePlace);
             }
             setStore('placeHistory,', this.placeHistory);
+            console.log('city.vue--nextPage--geohash='+geohash);
             this.$router.push({
                 path: '/msite',
                 query: {geohash}
@@ -105,7 +106,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import 'src/style/mixin';
+    @import '../../style/mixin';
     .city_container{
         padding-top: 2.35rem;
     }
