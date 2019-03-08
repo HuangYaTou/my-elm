@@ -19,7 +19,9 @@ export default {
         svgIcon
     }
 }
-//requestAnimationFrame--H5新增的定时器
+// requestAnimationFrame--H5新增的定时器
+// Swiper 插件
+// vue-router 的 scrollBehavior 使用
 </script>
 
 <style lang="scss">
