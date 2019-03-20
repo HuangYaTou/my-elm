@@ -51,8 +51,125 @@
                         </svg>
                     </div>
                 </div>
-                <transition name="showlist"></transition>
+                <transition name="showlist">
+                  <section class="sort_detail_type" v-show="sortBy=='sort'">
+                    <ul class="sort_list_container" @click="sortList($event)">
+                      <li class="sort_list_li">
+                        <svg>
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#default"></use>
+                        </svg>
+                        <p data="0" :class="{sort_select: sortByType==0}">
+                          <span>智能排序</span>
+                          <svg v-if="sortByType==0">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                          </svg>
+                        </p>
+                      </li>
+                      <li class="sort_list_li">
+                        <svg>
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#distance"></use>
+                        </svg>
+                        <p data="5" :class="{sort_select: sortByType == 5}">
+                          <span>距离最近</span>
+                          <svg v-if="sortByType==5">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                          </svg>
+                        </p>
+                      </li>
+                      <li class="sort_list_li">
+                        <svg>
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#hot"></use>
+                        </svg>
+                        <p data="6" :class="{sort_select:sortByType==6}">
+                          <span>销量最高</span>
+                          <svg v-if="sortByType==6">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                          </svg>
+                        </p>
+                      </li>
+                      <li class="sort_list_li">
+                        <svg>
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#price"></use>
+                        </svg>
+                        <p data="1" :class="{sort_select:sortByType==1}">
+                          <span>起送价最低</span>
+                          <svg v-if="sortByType==1">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                          </svg>
+                        </p>
+                      </li>
+                      <li class="sort_list_li">
+                        <svg>
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#speed"></use>
+                        </svg>
+                        <p data="2" :class="{sort_select:sortByType==2}">
+                          <span>配送速度最快</span>
+                          <svg v-if="sortByType==2">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                          </svg>
+                        </p>
+                      </li>
+                      <li class="sort_list_li">
+                        <svg>
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#rating"></use>
+                        </svg>
+                        <p data="3" :class="{sort_select:sortByType==3}">
+                          <span>评分最高</span>
+                          <svg v-if="sortByType==3">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                          </svg>
+                        </p>
+                      </li>
+                    </ul>
+                  </section>
+                </transition>
             </div>
+            <!-- 筛选 -->
+            <div class="sort_item" :class="{choose_type:sortBy=='activity'}">
+              <div class="sort_item_container" @click="chooseType('activity')">
+                <span :class="{category_title: sortBy == 'activity'}">筛选</span>
+                <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">
+                  <polygon points="0,3 10,3 5,8"></polygon>
+                </svg>
+              </div>
+              <transition name="showlist">
+                <section class="sort_detail_type filter_container" v-show="sortBy=='activity'">
+                  <section style="width:100%;">
+                    <header class="filter_header_style">配送方式</header>
+                    <ul class="filter_ul">
+                      <li class="filter_li" v-for="(item, index) in Delivery" :key="index" @click="selectDeliveryMode(item.id)">
+                        <svg :style="{opacity:(item.id==0)&&(delivery_mode!=0)?0:1}">
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="delivery_mode==item.id?'#selected':'#fengniao'"></use>
+                        </svg>
+                        <span :class="{selected_filter: delivery_mode==item.id}">{{item.text}}</span>
+                      </li>
+                    </ul>
+                  </section>
+                  <section style="width:100%;">
+                    <header class="filter_header_style">商家属性（可以多选）</header>
+                    <ul class="filter_ul" style="paddingBottom: .5rem;">
+                      <li class="filter_li" v-for="(item, index) in Activity" :key="index" @click="selectSupportIds(index, item.id)">
+                        <svg class="activity_svg" v-show="support_ids[index].status">
+                          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                        </svg>
+                        <span class="filter_icon" :style="{color: '#'+item.icon_color, borderColor:'#'+item.icon_color}" v-show="!support_ids[index].status">{{item.icon_name}}</span>
+                        <span :class="{selected_filter: support_ids[index].status}">{{item.name}}</span>
+                      </li>
+                    </ul>
+                  </section>
+                  <footer class="confirm_filter">
+                    <div class="filter_button_style clear_all" @click="clearSelect">清空</div>
+                    <div class="filter_button_style confirm_select" @click="confirmSelectFun">确定<span v-show="filterNum">({{filterNum}})</span></div>
+                  </footer>
+                </section>
+              </transition>
+            </div>
+        </section>
+        <transition name="showcover">
+          <div class="back_cover" v-show="sortBy"></div>
+        </transition>
+        <section class="shop_list_container">
+          <shop-list v-if="latitude" :geohash="geohash" :restaurantCategoryId="restaurant_category_id" :restaurantCategoryIds="restaurant_category_ids" :sortByType="sortByType" :deliveryMode="delivery_mode" :confirmSelect="confirmStatus" :supportIds="support_ids"></shop-list>
         </section>
     </div>
 </template>

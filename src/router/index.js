@@ -7,6 +7,8 @@ const city = r => require.ensure([], () => r(require('../page/city/city')), 'cit
 const login = r => require.ensure([], () => r(require('../page/login/login')), 'login');
 const forget = r => require.ensure([], () => r(require('../page/forget/forget')), 'forget');
 const msite = r=>require.ensure([],()=>r(require('../page/msite/msite')),'msite');
+const food = r=>require.ensure([],()=>r(require('../page/food/food')),'food');
+const shop = r=>require.ensure([],()=>r(require('../page/shop/shop')),'shop');
 
 
 
@@ -36,6 +38,12 @@ export default new Router({
         path: '/msite',
         component: msite,
         meta: {keepAlive: true}
+      }, {
+        path: '/food',
+        component: food
+      }, {
+        path: '/shop',
+        component: shop
       }]
     }
   ],
