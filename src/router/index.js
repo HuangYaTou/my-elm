@@ -9,6 +9,8 @@ const forget = r => require.ensure([], () => r(require('../page/forget/forget'))
 const msite = r=>require.ensure([],()=>r(require('../page/msite/msite')),'msite');
 const food = r=>require.ensure([],()=>r(require('../page/food/food')),'food');
 const shop = r=>require.ensure([],()=>r(require('../page/shop/shop')),'shop');
+const shopDetail = r=>require.ensure([],()=>r(require('../page/shop/children/shopDetail')),'shopDetail');
+const foodDetail = r=>require.ensure([],()=>r(require('../page/shop/children/foodDetail')),'foodDetail');
 
 
 
@@ -43,7 +45,14 @@ export default new Router({
         component: food
       }, {
         path: '/shop',
-        component: shop
+        component: shop,
+        children: [{
+          path: 'shopDetail',
+          component: shopDetail
+        }, {
+          path: 'foodDetail',
+          component: foodDetail
+        }]
       }]
     }
   ],

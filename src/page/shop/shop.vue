@@ -15,7 +15,7 @@
                         </section>
                         <section class="description_right">
                             <h4 class="description_title">{{shopDetailData.name}}</h4>
-                            <p class="description_text">{{shopDetailData.order_lead_time}}分钟送达/配送费¥{{shopDetailData.float_delivery_fee}}</p>
+                            <p class="description_text">商家配送/{{shopDetailData.order_lead_time}}分钟送达/配送费¥{{shopDetailData.float_delivery_fee}}</p>
                             <p class="description_promotion ellipsis">公告：{{promotionInfo}}</p>
                         </section>
                         <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" version="1.1" class="description_arrow">
@@ -98,25 +98,201 @@
                                                 <h3 class="food_description_head">
                                                     <strong class="description_foodname">{{foods.name}}</strong>
                                                     <ul class="attributes_ul" v-if="foods.attributes.length">
-
+                                                        <li v-for="(attribute, foodIndex) in foods.attributes" :key="foodIndex" :style="{color:'#'+attribute.icon_color, borderColor:'#'+attribute.icon_color}" :class="{attribute_new: attribute.icon_name=='新'}">
+                                                            <p :style="{color: attribute.icon_name=='新'?'#fff':'#'+attribute.icon_color}">{{attribute.icon_name=='新'?'新品':attribute.icon_name}}</p>
+                                                        </li>
                                                     </ul>
                                                 </h3>
+                                                <p class="food_description_content">{{foods.description}}</p>
+                                                <p class="food_description_sale_rating">
+                                                    <span>月售{{foods.month_sales}}份</span>
+                                                    <span>好评率{{foods.satisfy_rate}}%</span>
+                                                </p>
+                                                <p class="food_activity" v-if="foods.activity">
+                                                    <span :style="{color:'#'+foods.activity.image_text_color, borderColor:'#'+foods.activity.icon_color}">{{foods.activity.image_text}}</span>
+                                                </p>
                                             </section>
                                         </router-link>
+                                        <footer class="menu_detail_footer">
+                                            <section class="food_price">
+                                                <span>¥</span>
+                                                <span>{{foods.specfoods[0].price}}</span>
+                                                <span v-if="foods.specifications.length">起</span>
+                                            </section>
+                                            <buy-cart :shopId="shopId" :foods="foods" @moveInCart="listenInCart" @showChooseList="showChooseList" @showReduceTip="showReduceTip" @showMoveDot="showMoveDotFun"></buy-cart>
+                                        </footer>
                                     </section>
                                 </li>
                             </ul>
                         </section>
                     </section>
-                    <section class="buy_cart_container"></section>
-                    <transition name="toggle-cart"></transition>
+                    <section class="buy_cart_container">
+                        <section class="cart_icon_num" @click="toggleCartList">
+                            <div class="cart_icon_container" :class="{cart_icon_activity:totalPrice>0, move_in_cart:receiveInCart}" ref="cartContainer">
+                                <span class="cart_list_length" v-if="totalNum">{{totalNum}}</span>
+                                <svg class="cart_icon">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-icon"></use>
+                                </svg>
+                            </div>
+                            <div class="cart_num">
+                                <div>¥{{totalPrice}}</div>
+                                <div>配送费 ¥{{deliveryFee}}</div>
+                            </div>
+                        </section>
+                        <section class="gotopay" :class="{gotopay_activity: minimumOrderAmount<=0}">
+                            <span class="gotopay_button_style" v-if="minimumOrderAmount>0">还差¥{{minimumOrderAmount}}元起送</span>
+                            <router-link class="gotopay_button_style" v-else :to="{path:'/confirmOrder',query:{geohash, shopId}}">去结算</router-link>
+                        </section>
+                    </section>
+                    <transition name="toggle-cart">
+                        <section class="cart_food_list" v-show="showCartList&&cartFoodList.length">
+                            <header>
+                                <h4>购物车</h4>
+                                <div @click="clearCart">
+                                    <svg>
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-remove"></use>
+                                    </svg>
+                                    <span class="clear_cart">清空</span>
+                                </div>
+                            </header>
+                            <section class="cart_food_details" id="cartFood">
+                                <ul>
+                                    <li class="cart_food_li" v-for="(item,index) in cartFoodList" :key="index">
+                                        <div class="cart_list_num">
+                                            <p class="ellipsis">{{item.name}}</p>
+                                            <p class="ellipsis">{{item.specs}}</p>
+                                        </div>
+                                        <div class="cart_list_price">
+                                            <span>¥</span>
+                                            <span>{{item.price}}</span>
+                                        </div>
+                                        <section class="cart_list_control">
+                                            <span @click="removeOutCart(item.category_id, item.item_id, item.food_id, item.name, item.price, item.specs)">
+                                                <svg>
+                                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-minus"></use>
+                                                </svg>
+                                            </span>
+                                            <span class="cart_num">{{item.num}}</span>
+                                            <svg class="cart_add" @click="addToCart(item.category_id, item.item_id, item.food_id, item.name, item.price, item.specs)">
+                                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-add"></use>
+                                            </svg>
+                                        </section>
+                                    </li>
+                                </ul>
+                            </section>
+                        </section>
+                    </transition>
                     <transition name="fade">
                         <div class="screen_cover" v-show="showCartList&&cartFoodList.length" @click="toggleCartList"></div>
                     </transition>
                 </section>
             </transition>
-            <transition name="fade-choose"></transition>
+            <transition name="fade-choose">
+                <section class="rating_container" id="ratingContainer" v-show="changeShowType=='rating'">
+                    <section v-load-more="loaderMoreRating" type="2">
+                        <section>
+                            <header class="rating_header">
+                                <section class="rating_header_left">
+                                    <p>{{shopDetailData.rating}}</p>
+                                    <p>综合评价</p>
+                                    <p>高于周边商家{{(ratingScoresData.compare_rating*100).toFixed(1)}}%</p>
+                                </section>
+                                <section class="rating_header_right">
+                                    <p>
+                                        <span>服务态度</span>
+                                        <rating-star :rating="ratingScoresData.service_score"></rating-star>
+                                        <span class="rating_num">{{ratingScoresData.service_score.toFixed(1)}}</span>
+                                    </p>
+                                    <p>
+                                        <span>菜品评价</span>
+                                        <rating-star :rating="ratingScoresData.food_score"></rating-star>
+                                        <span class="rating_num">{{ratingScoresData.food_score.toFixed(1)}}</span>
+                                    </p>
+                                    <p>
+                                        <span>送达时间</span>
+                                        <span class="delivery_time">{{shopDetailData.order_lead_time}}分钟</span>
+                                    </p>
+                                </section>
+                            </header>
+                            <ul class="tag_list_ul">
+                                <li v-for="(item, index) in ratingTagsList" :key="index" :class="{unsatisfied: item.unsatisfied, tagActivity: ratingTagsIndex==index}" @click="changeTagIndex(index, item.name)">{{item.name}}({{item.count}})</li>
+                            </ul>
+                            <ul class="rating_list_ul">
+                                <li class="rating_list_li" v-for="(item, index) in ratingList" :key="index">
+                                    <img :src="getImgPath(item.avatar)" alt="" class="user_avatar">
+                                    <section class="rating_list_details">
+                                        <header>
+                                            <section class="username_star">
+                                                <p class="username">{{item.username}}</p>
+                                                <p class="star_desc">
+                                                    <rating-star :rating="item.rating_star"></rating-star>
+                                                    <span class="time_spent_desc">{{item.time_spent_desc}}</span>
+                                                </p>
+                                            </section>
+                                            <time class="rated_at">{{item.rated_at}}</time>
+                                        </header>
+                                        <ul class="food_img_ul">
+                                            <li v-for="(item, index) in item.item_ratings" :key="index">
+                                                <img v-if="item.image_hash" :src="getImgPath(item.image_hash)">
+                                            </li>
+                                        </ul>
+                                        <ul class="food_name_ul">
+                                            <li class="ellipsis" v-for="(item, index) in item.item_ratings" :key="index">{{item.food_name}}</li>
+                                        </ul>
+                                    </section>
+                                </li>
+                            </ul>
+                        </section>
+                    </section>
+                </section>
+            </transition>
         </section>
+        <section>
+            <transition name="fade">
+                <div class="specs_cover" v-if="showSpecs" @click="showChooseList"></div>
+            </transition>
+            <transition name="fadeBounce">
+                <div class="specs_list" v-if="showSpecs">
+                    <header class="specs_list_header">
+                        <h4 class="ellipsis">{{choosedFoods.name}}</h4>
+                        <svg class="specs_cancel" width="16" height="16" xmlns="http://www.w3.org/2000/svg" version="1.1" @click="showChooseList">
+                            <line x1="0" y1="0" x2="16" y2="16" style="fill:none; stroke:#666; stroke-width:1.2;"></line>
+                            <line x1="0" y1="16" x2="16" y2="0" style="fill:none; stroke:#666; stroke-width:1.2;"></line>
+                        </svg>
+                    </header>
+                    <section class="specs_details">
+                        <h5 class="specs_details_title">{{choosedFoods.specifications[0].name}}</h5>
+                        <ul>
+                            <li v-for="(item, itemIndex) in choosedFoods.specifications[0].values" :key="itemIndex" :class="{specs_activity: itemIndex==specsIndex}" @click="chooseSpecs(itemIndex)">{{item}}</li>
+                        </ul>
+                    </section>
+                    <footer class="specs_footer">
+                        <div class="specs_price">
+                            <span>¥ </span>
+                            <span>{{choosedFoods.specfoods[specsIndex].price}}</span>
+                        </div>
+                        <div class="specs_addto_cart" @click="addSpecs(choosedFoods.category_id, choosedFoods.item_id, choosedFoods.specfoods[specsIndex].food_id, choosedFoods.specfoods[specsIndex].name, choosedFoods.specfoods[specsIndex].price, choosedFoods.specifications[0].values[specsIndex], choosedFoods.specfoods[specsIndex].packing_fee, choosedFoods.specfoods[specsIndex].sku_id, choosedFoods.specfoods[specsIndex].stock)">加入购物车</div>
+                    </footer>
+                </div>
+            </transition>
+        </section>
+        <transition name="fade">
+            <p class="show_delete_tip" v-if="showDeleteTip">多规格商品只能去购物车删除哦</p>
+        </transition>
+        <transition appear @after-appear="afterEnter" @before-appear="beforeEnter" v-for="(item, index) in showMoveDot" :key="index">
+            <span class="move_dot" v-if="item">
+                <svg class="move_liner">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-add"></use>
+                </svg>
+            </span>
+        </transition>
+        <loading v-show="showLoading||loadRatings"></loading>
+        <section class="animation_opactiy shop_back_svg_container" v-if="showLoading">
+            <img src="../../images/shop_back_svg.svg">
+        </section>
+        <transition name="router-slid" mode="out-in">
+            <router-view></router-view>
+        </transition>
     </div>
 </template>
 
@@ -158,11 +334,11 @@ export default {
             loadRatings: false,  //加载更多评论时显示加载组件
             preventRepeatRequest: false,  //防止多次触发数据请求
             foodScroll: null,  //视频列表scroll
-            ratingScroll,  //评论页scroll
+            ratingScroll: null,  //评论页scroll
             showSpecs: false,  //控制食品显示规格
             specsIndex: 0,  // 当前选中的规格索引值
             choosedFoods: null,  //当前选中视频数据
-            showDetailTip: false,  //多规格商品点击减按钮，弹出提示框
+            showDeleteTip: false,  //多规格商品点击减按钮，弹出提示框
             showMoveDot: [],  //控制下落的小圆点显示隐藏
             windowHeight: null,  //屏幕的高度
             elLeft: 0,  //当前点击加按钮在网页中的绝对top值
@@ -496,6 +672,7 @@ export default {
         },
         //商品、评论切换状态
         changeShowType: function(value) {
+            console.log('shop.vue--changeShowType--value='+value);
             if(value==='rating') {
                 this.$nextTick(()=>{
                     this.ratingScroll = new BScroll('#ratingContainer', {

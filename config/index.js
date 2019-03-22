@@ -37,6 +37,14 @@ module.exports = {
           '^/shopping': '/shopping'
         },
       },
+      '/ugc': {
+        target: proxyUrl,
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/ugc': '/ugc'
+        },
+      },
       '/img': {
         target: proxyUrl,
         secure: false,

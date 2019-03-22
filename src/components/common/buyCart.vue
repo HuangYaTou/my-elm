@@ -11,7 +11,7 @@
             <transition name="fade">
                 <span class="cart_num" v-if="foodNum">{{foodNum}}</span>
             </transition>
-            <svg class="add_icon" @click="addToCart()">
+            <svg class="add_icon" @click="addToCart(foods.category_id, foods.item_id, foods.specfoods[0].food_id, foods.specfoods[0].name, foods.specfoods[0].price, '', foods.specfoods[0].packing_fee, foods.specfoods[0].sku_id, foods.specfoods[0].stock, $event)">
                 <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-add"></use>
             </svg>
         </section>
@@ -46,7 +46,7 @@ export default {
         ]),
         //监听cartList变化，更新当前商铺的购物车信息shopCart，同时返回一个新的对象
         shopCart() {
-            return Object.assign({}, this.cartList[shopId]);
+            return Object.assign({}, this.cartList[this.shopId]);
         },
         //shopCart变化的时候重新计算当前商品的数量
         foodNum() {
